@@ -28,18 +28,30 @@
   $('#i'+docCount).keypress(handler);
 
   function rerun(k){
+
+    var count = 0;
     function runAllUpto(c, n) {
+      document.getElementById("c"+n).innerHTML = "";
       conn.onmessage = function(e) {
-        console.log(e.data);
-        document.getElementById("c"+n).innerHTML = e.data;
-        if(c!=n)
+        console.log("asdf: '"+e.data+"'");
+        document.getElementById("c"+n).innerHTML += e.data;
+        if(e.data=="\\"){
+          count++;
+        }
+        if(count == 3 && c!=n)
           runAllUpto(c+1, n);
       }
-      conn.send(codeList[i]);
+      console.log("sent: "+codeList[c])
+      conn.send(codeList[c]);
     }
     conn.onmessage = function(e) {
       console.log(e.data);
-      runAllUpto(0, k);
+      if(e.data=="done"){
+        console.log("done");
+        conn.onmessage = function(e) {console.log(e);};
+        runAllUpto(0, k);
+      }
+
     }
     conn.send("{*reset*}")
   }

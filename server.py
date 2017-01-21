@@ -37,6 +37,11 @@ class SocketHandler(websocket.WebSocketHandler):
             print("RESET")
 
             self.proc.kill()
+            self.proc.stdout.close()
+            print("waiting")
+            self.wthread.join()
+            print("error!")
+
             cmd = "docker run -i docker-python python -u repl.py"
             self.proc = subprocess.Popen(cmd.split(' '), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
@@ -54,7 +59,9 @@ class SocketHandler(websocket.WebSocketHandler):
 def writer(conn, fd, stop):
     while(not stop.is_set()):
         try:
-            conn.write_message(fd.read(1).decode('utf-8'))
+            r = fd.read(1).decode('utf-8')
+            if(len(r)):
+                conn.write_message(r)
         except:
             print("read failed!")
             break

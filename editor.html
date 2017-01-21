@@ -57,16 +57,21 @@
     function runAllUpto(c, n) {
       document.getElementById("c"+c).innerHTML = "";
       conn.onmessage = function(e) {
-        console.log("asdf"+c+": '"+e.data+"'");
+        console.log("asdf"+c+","+count+": '"+e.data+"'");
         document.getElementById("c"+c).innerHTML += e.data;
-        if(e.data=="\\" || e.data=="\n"){
+        if(e.data=="\\" && count<3){
           count++;
           document.getElementById("c"+c).innerHTML = document.getElementById("c"+c).innerHTML.replace("\\\\\\", "");
+          console.log("countup");
+        }
+        else if(e.data=="\n" && count==3){
+          count++;
         }
         else{
           count = 0;
         }
         if(count == 4 && c!=n){
+          count = 0;
           console.log(c+","+n)
           runAllUpto(c+1, n);
         }
@@ -145,6 +150,7 @@
         else{
           console.log("changed something");
           codeList[currNum] = io.value;
+          console.log(docCount+","+currNum+":"+codeList);
           rerun(currNum);
         }
         $(io).replaceWith('<p id="'+currId+'">'+io.value.replace("\n", "<br>")+'</p tag=done>');

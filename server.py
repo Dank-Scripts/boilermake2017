@@ -60,9 +60,9 @@ class SocketHandler(websocket.WebSocketHandler):
 def writer(conn, fd, stop):
     while(not stop.is_set()):
         try:
-            r = fd.read(1).decode('utf-8')
-            print("R: ",r)
+            #r = fd.read(1).decode('utf-8')
             if(len(r)):
+                print("R: ",r)
                 conn.write_message(r)
         except:
             print("read failed!")

@@ -34,7 +34,7 @@
 
   function finish(){
     var f = document.getElementById('form').innerHTML;
-    Mixmax.done({html:encodeURIComponent(f)});
+    Mixmax.done(encodeURIComponent(f));
   }
 
   showdown.setFlavor('github');

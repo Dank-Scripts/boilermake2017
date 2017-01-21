@@ -1,0 +1,149 @@
+<div id='notebook'></div>
+<form id='form' .down>
+  <textarea id='i0' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+  <code id='c0'></code>
+</form>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script type="text/javascript">
+  var docCount = 0;
+  var codeSwitch;
+  var pending = false;
+  var url = document.URL;
+  var form = document.getElementById('form');
+
+  var settings = 'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"';
+  
+  //holds code
+  var codeList = [];
+
+
+  url = url.replace("http", "ws").replace("editor", "ws");
+  console.log(url);
+  var conn = new WebSocket(url);
+  $(window).on('beforeunload', function(){
+      conn.close();
+  });
+  
+
+  $('#i'+docCount).keypress(handler);
+
+  function rerun(k){
+    function runAllUpto(c, n) {
+      conn.onmessage = function(e) {
+        console.log(e.data);
+        document.getElementById("c"+n).innerHTML = e.data;
+        if(c!=n)
+          runAllUpto(c+1, n);
+      }
+      conn.send(codeList[i]);
+    }
+    conn.onmessage = function(e) {
+      console.log(e.data);
+      runAllUpto(0, k);
+    }
+    conn.send("{*reset*}")
+  }
+
+  function handler(e){
+    var io = this;
+    var currId = io.id;
+    var currNum = Number(currId.substring(1));
+    //console.log(e);
+
+    //cancel code waiting
+    clearTimeout(codeSwitch);
+    if(pending){
+
+      //set to code if "\ "
+      if(e.originalEvent.charCode==32){
+        e.preventDefault();
+        $(io).addClass("code");
+        pending = false;
+      }
+
+      //input the \
+      else{
+        io.value = '\\';
+        pending = false;
+      }
+    }
+
+    // change code block to normal block
+    //  make sure to delete from code list
+    if(e.originalEvent.code == "Backspace"){
+      if($(io).hasClass("code") && io.value==""){
+        $(io).removeClass("code");
+      }
+    }
+
+    //shift enter to submit
+    if(e.keyCode == 13 && e.shiftKey) {
+      e.preventDefault();
+      if(io.value==''){
+        io.value = "\n";
+      }
+      
+      //input is code, and should be sent to socket
+      // also add code to list
+      // then on resubmits, just go through all consoles and append new output
+      var isCode = $(io).hasClass("code");
+      if(isCode){
+        if(currNum==docCount){
+          codeList.push(io.value);
+          conn.onmessage = function(e) {
+            $('#c'+currNum).append(e.data.replace("\n", "<br>"));
+          };
+          conn.send(io.value);
+        }
+        else{
+          codeList[currNum] = io.value;
+          rerun(currNum);
+        }
+      }
+      
+      //create <p> with content of input (history)
+      $(io).replaceWith('<p id="'+currId+'">'+io.value.replace("\n", "<br>")+'</p>');
+      $('#s'+currNum).remove();
+      io = document.getElementById(currId);
+      if(isCode){
+        $(io).addClass("code");
+      }
+
+      //editable history
+      io.onclick = function(){
+        var isCode = $(io).hasClass("code");
+        $(io).replaceWith('<textarea id="'+currId+'">'+io.innerHTML.replace("<br>", "\n")+'</textarea><br id="s'+currNum+'">');
+        io = document.getElementById(currId);
+        if(isCode){
+          $(io).addClass("code");
+        }
+        $(io).keypress(handler);
+      }
+      
+      if(currNum==docCount){
+        docCount++;
+        $('#form').append("<textarea id='i"+docCount+"' "+settings+"></textarea>").focus();
+        $('#form').append("<code id='c"+docCount+"'></code>");
+        $('#i'+docCount).keypress(handler);
+      }
+    }
+   
+    //press backslash to get code input
+    if(e.originalEvent.charCode == 92){
+      if(io.value==''){
+        e.preventDefault();
+        pending = true;
+        codeSwitch = setTimeout(function(){
+          $(io).addClass("code");
+          pending = false;
+        }, 1000);
+      }
+    }
+
+  }
+
+  //function sendEof(){
+  //  console.log('closing stdin');
+  //  conn.send("{*--EOF--*}");
+  //}
+</script>

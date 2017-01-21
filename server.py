@@ -3,6 +3,7 @@ from time import sleep
 from threading import Thread, Event
 import subprocess
 import json
+import os
 
 class EditorHandler(web.RequestHandler):
 	def get(self):
@@ -17,7 +18,7 @@ class SocketHandler(websocket.WebSocketHandler):
         #self.write_message("hello friend")
 
         cmd = "docker run -i docker-python python -u repl.py"
-        self.proc = subprocess.Popen(cmd.split(' '), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        self.proc = subprocess.Popen(cmd.split(' '), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         #self.proc.kill()
 
@@ -60,7 +61,7 @@ class SocketHandler(websocket.WebSocketHandler):
 def writer(conn, fd, stop):
     while(not stop.is_set()):
         try:
-            #r = fd.read(1).decode('utf-8')
+            r = fd.read(1).decode('utf-8')
             if(len(r)):
                 print("R: ",r)
                 conn.write_message(r)
@@ -70,9 +71,9 @@ def writer(conn, fd, stop):
 
 app = web.Application([
 	(r'/editor', EditorHandler),
-	(r'/ws', SocketHandler)
+	(r'/ws', SocketHandler),
+    (r'/files/(.*)', web.StaticFileHandler, {'path':'static/'})
 ])
-
 if __name__ == '__main__':
 	print("Now running at http://localhost:5000/")
 	app.listen(5000)

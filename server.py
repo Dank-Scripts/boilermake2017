@@ -3,14 +3,67 @@ from time import sleep
 from threading import Thread, Event
 import subprocess
 import json
-import os
+import urllib
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+
+
+class BaseHandler(web.RequestHandler):
+
+    def set_default_headers(self):
+        print("setting headers!!!")
+        self.set_header("Access-Control-Allow-Origin", "https://compose.mixmax.com")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.set_header('Access-Control-Allow-Credentials', 'true')
+
+
+    def post(self):
+        self.write('some post')
+
+    def get(self):
+        self.write('some get')
+
+    def options(self):
+        # no body
+        self.set_status(204)
+        self.finish()
+
+class ResolverHandler(BaseHandler):
+    def post(self):
+        #self.set_header("Access-Control-Allow-Origin", "*")
+        #print(self.request.body)
+        def toHtml(prettyLines):
+            return "".join(prettyLines)
+
+        def prettyEachLine(raw):
+                lines = raw.split("\n")
+                formatter = HtmlFormatter()
+                lex = PythonLexer()
+                formatter.noclasses = True
+                prettyLines = []
+                for line in lines:
+                        pretty = highlight(line, lex, formatter)
+                        prettyLines.append(pretty)
+                return prettyLines
+        raw = self.get_body_argument("params")
+        html = toHtml(prettyEachLine(raw))
+        print(urllib.parse.unquote(html))
+        self.write({'body': urllib.parse.unquote(html), 'raw': 'true'})
+        #body to html
+        #convert raw... python to html formatted pretty.
+
+
+
 
 class EditorHandler(web.RequestHandler):
-	def get(self):
-		self.render("editor.html")
+    def get(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.render("editor.html")
 
 class SocketHandler(websocket.WebSocketHandler):
-    def check_origin(self, origin):
+    def check_dorigin(self, origin):
         return True
 
     @web.asynchronous
@@ -28,7 +81,7 @@ class SocketHandler(websocket.WebSocketHandler):
         self.stop = Event()
         self.wthread = Thread(target=writer, args=(self, self.proc.stdout, self.stop))
         self.wthread.start()
-        
+
     def on_close(self):
         self.proc.kill()
         print("conn closed");
@@ -70,10 +123,12 @@ def writer(conn, fd, stop):
             break
 
 app = web.Application([
-	(r'/editor', EditorHandler),
-	(r'/ws', SocketHandler),
-    (r'/files/(.*)', web.StaticFileHandler, {'path':'static/'})
+        (r'/editor', EditorHandler),
+        (r'/ws', SocketHandler),
+       # (r'/files/(.*)', web.StaticFileHandler, {'path':'static/'})
+        (r'/resolve', ResolverHandler)
 ])
+
 if __name__ == '__main__':
 	print("Now running at http://localhost:5000/")
 	app.listen(5000)

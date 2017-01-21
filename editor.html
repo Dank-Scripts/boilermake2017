@@ -10,6 +10,7 @@
     <textarea id='i0' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" rows=1 cols=80></textarea>
     <code id='c0' class="output"></code>
   </form>
+  <button onclick="finish()">Done!</button>
 </body>
 </html>
 
@@ -30,6 +31,11 @@
 <script src="files/python.js"></script>
 
 <script type="text/javascript">
+
+  function finish(){
+    var f = document.getElementById('form').innerHTML;
+    Mixmax.done({html:encodeURIComponent(f)});
+  }
 
   showdown.setFlavor('github');
   var converter = new showdown.Converter()

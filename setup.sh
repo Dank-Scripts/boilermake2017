@@ -1,4 +1,3 @@
 cd docker
-docker build -t docker-haskell .
-cd ..
-ghc server.hs
+docker build -t docker-python .
+cd -

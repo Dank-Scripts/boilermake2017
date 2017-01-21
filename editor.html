@@ -19,21 +19,20 @@
     background-color: black;
     color: white;
   }
-  
-  
-  
+
+
+
 </style>
+<script defer src="https://d1xa36cy0xt122.cloudfront.net/v1/Mixmax.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script type="text/javascript" src="https://cdn.rawgit.com/showdownjs/showdown/1.6.0/dist/showdown.min.js"></script>
 
-<script src="files/codemirror.js"></script>
-<link rel="stylesheet" href="files/codemirror.css">
-<script src="files/python.js"></script>
 
 <script type="text/javascript">
 
   function finish(){
-    var f = document.getElementById('form').innerHTML;
+  console.log("Finished")
+  var f = document.getElementById('form').innerHTML;
     Mixmax.done({html:encodeURIComponent(f)});
   }
 
@@ -47,7 +46,7 @@
   var form = document.getElementById('form');
 
   var settings = 'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" rows=1 cols=80';
-  
+
   //holds code
   var codeList = [];
 
@@ -58,7 +57,7 @@
   $(window).on('beforeunload', function(){
       conn.close();
   });
-  
+
 
   $('#i'+docCount).keypress(handler);
 
@@ -143,7 +142,7 @@
       if(io.value==''){
         io.value = "\n";
       }
-      
+
       //input is code, and should be sent to socket
       // also add code to list
       // then on resubmits, just go through all consoles and append new output
@@ -200,7 +199,7 @@
         io = document.getElementById(currId);
         $(io).keypress(handler);
       }
-      
+
       if(currNum==docCount){
         docCount++;
         $('#form').append("<textarea id='i"+docCount+"' "+settings+"></textarea>").focus();
@@ -208,7 +207,7 @@
         $('#i'+docCount).keypress(handler);
       }
     }
-   
+
     //press backslash to get code input
     if(e.originalEvent.charCode == 92){
       if(io.value==''){

@@ -3,14 +3,40 @@ from time import sleep
 from threading import Thread, Event
 import subprocess
 import json
-import os
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+
+
+class ResolverHandler(web.RequestHandler):
+    def post(self):
+        raw = self.get_body_argument("raw")
+        html = toHtml(prettyEachLine(raw))
+        self.write({body: html, raw: true})
+        #body to html
+        #convert raw... python to html formatted pretty.
+
+        def prettyEachLine(raw):
+                lines = raw.split("\n")
+                formatter = HtmlFormatter()
+                lex = PythonLexer()
+                formatter.noclasses = True
+                prettyLines = []
+                for line in lines:
+                        pretty = highlight(line, lex, formatter)
+                        prettyLines.append(pretty)
+                return prettyLines
+
+    def toHtml(prettyLines):
+        return "".join(prettyLines)
+
 
 class EditorHandler(web.RequestHandler):
 	def get(self):
 		self.render("editor.html")
 
 class SocketHandler(websocket.WebSocketHandler):
-    def check_origin(self, origin):
+    def check_dorigin(self, origin):
         return True
 
     @web.asynchronous
@@ -28,7 +54,7 @@ class SocketHandler(websocket.WebSocketHandler):
         self.stop = Event()
         self.wthread = Thread(target=writer, args=(self, self.proc.stdout, self.stop))
         self.wthread.start()
-        
+
     def on_close(self):
         self.proc.kill()
         print("conn closed");
@@ -70,10 +96,12 @@ def writer(conn, fd, stop):
             break
 
 app = web.Application([
-	(r'/editor', EditorHandler),
-	(r'/ws', SocketHandler),
-    (r'/files/(.*)', web.StaticFileHandler, {'path':'static/'})
+        (r'/editor', EditorHandler),
+        (r'/ws', SocketHandler),
+       # (r'/files/(.*)', web.StaticFileHandler, {'path':'static/'})
+        (r'/resolve', ResolverHandler)
 ])
+
 if __name__ == '__main__':
 	print("Now running at http://localhost:5000/")
 	app.listen(5000)

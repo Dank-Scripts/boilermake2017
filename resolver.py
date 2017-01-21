@@ -5,8 +5,11 @@ from pygments.formatters import HtmlFormatter
 
 class ResolverHandler(RequestHandler):
     def post(self):
-        body = self.get_body_argument("raw")
-        self.write(toHtml(body))
+        raw = self.get_body_argument("raw")
+        html = toHtml(prettyEachLine(raw))
+        self.write({
+            body: html
+            raw: true})
         #body to html
         #convert raw... python to html formatted pretty.
 

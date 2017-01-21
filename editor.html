@@ -1,17 +1,41 @@
-<div id='notebook'></div>
-<form id='form' .down>
-  <textarea id='i0' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-  <code id='c0'></code>
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+  <title> MixPy</title>
+</head>
+<body>
+
+  <div id='notebook'></div>
+  <form id='form' .down>
+    <textarea id='i0' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" rows=1 cols=80></textarea>
+    <code id='c0' class="output"></code>
+  </form>
+</body>
+</html>
+
+<style type="text/css">
+  .code {
+    background-color: black;
+    color: white;
+  }
+  .output {
+    color: gray;
+  }
+</style>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/showdownjs/showdown/1.6.0/dist/showdown.min.js"></script>
 <script type="text/javascript">
+
+  showdown.setFlavor('github');
+  var converter = new showdown.Converter()
+
   var docCount = 0;
   var codeSwitch;
   var pending = false;
   var url = document.URL;
   var form = document.getElementById('form');
 
-  var settings = 'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"';
+  var settings = 'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" rows=1 cols=80';
   
   //holds code
   var codeList = [];
@@ -31,18 +55,24 @@
 
     var count = 0;
     function runAllUpto(c, n) {
-      document.getElementById("c"+n).innerHTML = "";
+      document.getElementById("c"+c).innerHTML = "";
       conn.onmessage = function(e) {
-        console.log("asdf: '"+e.data+"'");
-        document.getElementById("c"+n).innerHTML += e.data;
-        if(e.data=="\\"){
+        console.log("asdf"+c+": '"+e.data+"'");
+        document.getElementById("c"+c).innerHTML += e.data;
+        if(e.data=="\\" || e.data=="\n"){
           count++;
+          document.getElementById("c"+c).innerHTML = document.getElementById("c"+c).innerHTML.replace("\\\\\\", "");
         }
-        if(count == 3 && c!=n)
+        else{
+          count = 0;
+        }
+        if(count == 4 && c!=n){
+          console.log(c+","+n)
           runAllUpto(c+1, n);
+        }
       }
       console.log("sent: "+codeList[c])
-      conn.send(codeList[c]);
+      conn.send(codeList[c].replace('\n', '{*n*}'));
     }
     conn.onmessage = function(e) {
       console.log(e.data);
@@ -57,6 +87,9 @@
   }
 
   function handler(e){
+    this.style.cssText = 'height:auto; padding:0';
+    this.style.cssText = 'height:' + this.scrollHeight + 'px';
+
     var io = this;
     var currId = io.id;
     var currNum = Number(currId.substring(1));
@@ -101,20 +134,31 @@
       var isCode = $(io).hasClass("code");
       if(isCode){
         if(currNum==docCount){
+          console.log("running most recent again");
           codeList.push(io.value);
           conn.onmessage = function(e) {
             $('#c'+currNum).append(e.data.replace("\n", "<br>"));
+            document.getElementById("c"+currNum).innerHTML = document.getElementById("c"+currNum).innerHTML.replace("\\\\\\", "");
           };
-          conn.send(io.value);
+          conn.send(io.value.replace('\n', '{*n*}'));
         }
         else{
+          console.log("changed something");
           codeList[currNum] = io.value;
           rerun(currNum);
         }
+        $(io).replaceWith('<p id="'+currId+'">'+io.value.replace("\n", "<br>")+'</p tag=done>');
       }
-      
+      else{
+        var content = io.value;
+        console.log(converter.makeHtml(content));
+        var d = $(io).replaceWith("<div id='"+currId+"'><p id='temp'></p><p id='temp1'></p></div>");
+        $('#temp').replaceWith(converter.makeHtml(content));
+        $('#temp1').replaceWith('<textarea id="'+currId+'md" hidden>'+content+'</textarea>');
+        //d.append(h);
+
+      };
       //create <p> with content of input (history)
-      $(io).replaceWith('<p id="'+currId+'">'+io.value.replace("\n", "<br>")+'</p>');
       $('#s'+currNum).remove();
       io = document.getElementById(currId);
       if(isCode){
@@ -124,18 +168,26 @@
       //editable history
       io.onclick = function(){
         var isCode = $(io).hasClass("code");
-        $(io).replaceWith('<textarea id="'+currId+'">'+io.innerHTML.replace("<br>", "\n")+'</textarea><br id="s'+currNum+'">');
-        io = document.getElementById(currId);
         if(isCode){
+          console.log("EDITED: "+io.innerHTML);
+          $(io).replaceWith('<textarea id="'+currId+'">'+io.innerHTML.replace("<br>", "\n")+'</textarea><br id="s'+currNum+'">');
+          io = document.getElementById(currId);
           $(io).addClass("code");
         }
+        else{
+          var content = document.getElementById(currId+'md').value;
+          $(currId+'md').remove();
+          $(io).replaceWith('<textarea id="'+currId+'">'+content+'</textarea><br id="s'+currNum+'">');
+
+        }
+        io = document.getElementById(currId);
         $(io).keypress(handler);
       }
       
       if(currNum==docCount){
         docCount++;
         $('#form').append("<textarea id='i"+docCount+"' "+settings+"></textarea>").focus();
-        $('#form').append("<code id='c"+docCount+"'></code>");
+        $('#form').append("<code id='c"+docCount+"'class='output'></code>");
         $('#i'+docCount).keypress(handler);
       }
     }

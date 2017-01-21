@@ -53,6 +53,7 @@ class SocketHandler(websocket.WebSocketHandler):
             self.write_message("done")
         else:
             print("got message: ", message)
+            print("encoded: ", str.encode(message+"\n"))
             self.proc.stdin.write(str.encode(message+"\n"))
             self.proc.stdin.flush()
 
@@ -60,6 +61,7 @@ def writer(conn, fd, stop):
     while(not stop.is_set()):
         try:
             r = fd.read(1).decode('utf-8')
+            print("R: ",r)
             if(len(r)):
                 conn.write_message(r)
         except:

@@ -105,7 +105,7 @@ function finish(){
     }
 
     //shift enter to submit
-    if(e.keyCode == 13 && !e.shiftKey) {
+    if(e.keyCode == 13 && e.shiftKey) {
       e.preventDefault();
       if(io.value==''){
         io.value = "\n";
@@ -126,19 +126,21 @@ function finish(){
           conn.send(io.value.replace('\n', '{*n*}'));
         }
         else{
-          console.log("changed something");
+          console.log(currNum+" "+docCount);
+          console.log("changed something "+codeList);
           codeList[currNum] = io.value;
           console.log(docCount+","+currNum+":"+codeList);
           rerun(currNum);
         }
-        $(io).replaceWith('<p class="wasCode" id="'+currId+'">'+io.value.replace("\n", "<br>")+'</p tag=done>');
+        $(io).replaceWith('<div class="out" id="'+currId+'"><p id="p'+currId+'">In [ '+currNum+' ]:</p><div id="d'+currId+'">'+io.value.replace("\n", "<br>")+'</div></div>');
       }
       else{
         var content = io.value;
         console.log(converter.makeHtml(content));
-        var d = $(io).replaceWith("<div id='"+currId+"'><p id='temp'></p><p id='temp1'></p></div>");
+        var d = $(io).replaceWith("<div id='"+currId+"' class='out'><p id='p"+currId+"'>In [ "+currNum+" ]:</p><p id='temp'></p><p id='temp1'></p></div>");
         $('#temp').replaceWith(converter.makeHtml(content));
         $('#temp1').replaceWith('<textarea id="'+currId+'md" style="display:none;">'+content+'</textarea>');
+        codeList.push("");
         //d.append(h);
 
       };
@@ -153,8 +155,9 @@ function finish(){
       io.onclick = function(){
         var isCode = $(io).hasClass("code");
         if(isCode){
-          console.log("EDITED: "+io.innerHTML);
-          $(io).replaceWith('<textarea id="'+currId+'">'+io.innerHTML.replace("<br>", "\n")+'</textarea><br id="s'+currNum+'">');
+          var content = document.getElementById('d'+currId).innerHTML;
+          console.log("EDITED: "+content);
+          $(io).replaceWith('<textarea id="'+currId+'">'+content.replace("<br>", "\n")+'</textarea><br id="s'+currNum+'">');
           io = document.getElementById(currId);
           $(io).addClass("code");
         }
@@ -171,7 +174,7 @@ function finish(){
       if(currNum==docCount){
         docCount++;
         $('#form').append("<textarea id='i"+docCount+"' "+settings+"></textarea>").focus();
-        $('#form').append("<code id='c"+docCount+"'class='output'></code>");
+        $('#form').append("<div class='stdout' id='c"+docCount+"'class='output'></div>");
         $('#i'+docCount).keypress(handler);
       }
     }

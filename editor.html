@@ -163,7 +163,7 @@
           console.log(docCount+","+currNum+":"+codeList);
           rerun(currNum);
         }
-        $(io).replaceWith('<p id="'+currId+'">'+io.value.replace("\n", "<br>")+'</p tag=done>');
+        $(io).replaceWith('<p class="wasCode" id="'+currId+'">'+io.value.replace("\n", "<br>")+'</p tag=done>');
       }
       else{
         var content = io.value;

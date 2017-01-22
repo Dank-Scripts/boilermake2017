@@ -4,6 +4,7 @@ from threading import Thread, Event
 import subprocess
 import json
 import urllib
+import html
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -34,23 +35,29 @@ class ResolverHandler(BaseHandler):
     def post(self):
         #self.set_header("Access-Control-Allow-Origin", "*")
         #print(self.request.body)
-        def toHtml(prettyLines):
-            return "".join(prettyLines)
+        formatter = HtmlFormatter();
+        lex = PythonLexer();
+        formatter.noclasses = True;
 
-        def prettyEachLine(raw):
-                lines = raw.split("\n")
-                formatter = HtmlFormatter()
-                lex = PythonLexer()
-                formatter.noclasses = True
-                prettyLines = []
-                for line in lines:
-                        pretty = highlight(line, lex, formatter)
-                        prettyLines.append(pretty)
-                return prettyLines
         raw = self.get_body_argument("params")
-        html = toHtml(prettyEachLine(raw))
-        print(urllib.parse.unquote(html))
-        self.write({'body': urllib.parse.unquote(html), 'raw': 'true'})
+        print(raw.split("<"))
+        raw = raw.split("<")
+        for i in range(len(raw)):
+            if "wasCode" in raw[i]:
+                end = raw[i].find('>')
+                raw[i] = raw[i][:end] +highlight(raw[i][end:], lex, formatter)
+
+        raw = "<".join(raw)
+
+        #print(htmlStr)
+        # decoded_string = html.unescape(htmlStr);
+        # decoded_string = bytes(htmlStr, "utf-8").decode("unicode_escape")
+        # print(decoded_string)
+        raw = raw.replace('\\n', '')
+        raw = raw.replace('\n', '<br>')
+        raw = raw.replace('<textarea', '<textarea style="display:none"')
+        raw = raw.replace('"', "")
+        self.write({'body': raw})
         #body to html
         #convert raw... python to html formatted pretty.
 

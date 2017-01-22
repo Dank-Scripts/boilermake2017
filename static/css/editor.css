@@ -25,6 +25,12 @@ body{
   text-align:center;
 }
 
+h1 {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 300%;
+}
+
+
 body button{
   margin-top: 3px;
   text-align: center;

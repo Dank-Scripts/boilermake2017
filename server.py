@@ -1,4 +1,5 @@
 from tornado import websocket, web, ioloop
+import tornado
 from time import sleep
 from threading import Thread, Event
 import subprocess
@@ -8,6 +9,7 @@ import html
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
+import os.path
 
 
 class BaseHandler(web.RequestHandler):
@@ -31,7 +33,7 @@ class BaseHandler(web.RequestHandler):
         self.set_status(204)
         self.finish()
 
-class ResolverHandler(BaseHandler):
+class ResolveHandler(BaseHandler):
     def post(self):
         #self.set_header("Access-Control-Allow-Origin", "*")
         #print(self.request.body)
@@ -129,14 +131,30 @@ def writer(conn, fd, stop):
             print("read failed!")
             break
 
-app = web.Application([
-        (r'/editor', EditorHandler),
-        (r'/ws', SocketHandler),
-       # (r'/files/(.*)', web.StaticFileHandler, {'path':'static/'})
-        (r'/resolve', ResolverHandler)
-])
+
+class web_app(web.Application):
+    def __init__(self):
+        handlers = [
+            (r'/editor', EditorHandler),
+            (r'/ws', SocketHandler),
+            (r'/resolve', ResolveHandler),
+        ]
+
+        settings = {
+            "static_path": os.path.join(os.path.dirname(__file__), "static"),
+            "template_path": os.path.join(os.path.dirname(__file__), "template")
+        }
+        web.Application.__init__(self, handlers, **settings)
+
+# app = web.Application([
+#         (r'/editor', EditorHandler),
+#         (r'/ws', SocketHandler),
+
+#         (r'/resolve', ResolverHandler)
+# ])
 
 if __name__ == '__main__':
-	print("Now running at http://localhost:5000/")
-	app.listen(5000)
-	ioloop.IOLoop.instance().start()
+    app = web_app()
+    print("Now running at http://localhost:5000/")
+    app.listen(5000)
+    ioloop.IOLoop.instance().start()

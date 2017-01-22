@@ -138,7 +138,7 @@ function finish(){
         console.log(converter.makeHtml(content));
         var d = $(io).replaceWith("<div id='"+currId+"'><p id='temp'></p><p id='temp1'></p></div>");
         $('#temp').replaceWith(converter.makeHtml(content));
-        $('#temp1').replaceWith('<textarea id="'+currId+'md" hidden>'+content+'</textarea>');
+        $('#temp1').replaceWith('<textarea id="'+currId+'md" style="display:none;">'+content+'</textarea>');
         //d.append(h);
 
       };

@@ -1,0 +1,47 @@
+.code {
+  background-color: #071b3d;
+  color: white;
+  font-family: monospace;
+  width: 660px;
+}
+
+body button{
+  margin-top: 5px;
+  margin-left: 340px;;
+  display: block;
+}
+#notebook {
+  width: 750px;
+  padding-top: 2px;
+  padding-bottom: 0px;
+  border: 5px solid #cccccc;
+}
+
+#form textarea{
+
+}
+
+#form p{
+  margin:10px;
+  margin-right: 3px;
+  float:left;
+}
+
+#i0 {
+  width: 660px;
+  background-color: rgba(0,0,0,0.05);
+  border: 3px solid #cccccc;
+  border-radius: 3px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+#c0 {
+  padding-left: 75px
+}
+
+div {
+  padding-left: 75px;
+}

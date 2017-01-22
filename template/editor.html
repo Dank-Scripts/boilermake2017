@@ -8,7 +8,7 @@
 </head>
 <body>
   <div id='title'>
-    <h1>MixPy</h1>
+    <h1><span style="color:#0b475b">M<span style="color:#cccccc">i</span><span style="color:#0087b5">x</span>Py</span></h1>
   </div>
   <div id='notebook'>
   <form id='form' .down>
@@ -17,6 +17,7 @@
   </form>
   </div>
   <button onclick="finish()">Done!</button>
+
 </body>
 </html>
 
@@ -26,4 +27,50 @@
 
 
 <script type="text/javascript" src="../static/js/run_python.js">
+</script>
+<script type="text/javascript">
+  var text = $('<textarea />').html('{{ data }}').text();
+  if(text.length){
+    $('#form').html(text);
+    docCount = {{ n }};
+
+    docCount--;
+    for(var i = 0; i<docCount; i++){
+      codeList.push("");
+    }
+
+    $("#i"+docCount).keypress(handler);
+    
+    $('.out').each(function (n) {
+      var io = this;
+      var currId = io.id;
+      var currNum = Number(currId.substring(1));
+      io.onclick = function(){
+        var isCode = $(io).hasClass("code");
+        if(isCode){
+          var content = io.innerHTML;
+          console.log("EDITED: "+content);
+          $(io).replaceWith('<textarea id="'+currId+'">'+content.replace("<br>", "\n")+'</textarea><br id="s'+currNum+'">');
+          io = document.getElementById(currId);
+          $(io).addClass("code");
+        }
+        else{
+          var content = document.getElementById(currId+'md').value;
+          $(currId+'md').remove();
+          $(io).replaceWith('<textarea id="'+currId+'">'+content+'</textarea><br id="s'+currNum+'">');
+
+        }
+        io = document.getElementById(currId);
+        $(io).keypress(handler);
+      }
+    });
+
+    $('.code').each(function(n){
+      var io = this;
+      var currId = io.id;
+      var currNum = Number(currId.substring(1));
+      codeList[currNum] = this.innerHTML.replace('<br>', '\n');
+    });
+  }
+  //console.log("asdf");
 </script>

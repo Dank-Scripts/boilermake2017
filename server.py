@@ -42,7 +42,6 @@ class ResolveHandler(BaseHandler):
         formatter.noclasses = True;
 
         raw = self.get_body_argument("params")
-        print(raw.split("<"))
         raw = raw.split("<")
         for i in range(len(raw)):
             if "wasCode" in raw[i]:
@@ -59,6 +58,10 @@ class ResolveHandler(BaseHandler):
         raw = raw.replace('\n', '<br>')
         raw = raw.replace('<textarea', '<textarea style="display:none"')
         raw = raw.replace('"', "")
+
+        #css = open(os.path.join(os.path.dirname(__file__), "static/css/editor.css")).read()
+        #raw = "<style>"+css+"</style>"+raw
+        print(raw)
         self.write({'body': raw})
         #body to html
         #convert raw... python to html formatted pretty.
@@ -68,8 +71,16 @@ class ResolveHandler(BaseHandler):
 
 class EditorHandler(web.RequestHandler):
     def get(self):
+        d = self.get_argument("data", default="")
+        if(len(d)):
+            d = bytes(d, "utf-8").decode("unicode_escape")
+
         self.set_header("Access-Control-Allow-Origin", "*")
-        self.render("editor.html")
+        print("rendering with: "+d)
+
+        docCount = len(d.split('class="stdout"')) - 1
+
+        self.render("editor.html", n=docCount, data=d[1:-1].replace('\n',''))
 
 class SocketHandler(websocket.WebSocketHandler):
     def check_dorigin(self, origin):

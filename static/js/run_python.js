@@ -76,7 +76,7 @@ function finish(){
     var io = this;
     var currId = io.id;
     var currNum = Number(currId.substring(1));
-    //console.log(e);
+    console.log(e);
 
     //cancel code waiting
     clearTimeout(codeSwitch);

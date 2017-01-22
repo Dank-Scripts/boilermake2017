@@ -132,12 +132,12 @@ function finish(){
           console.log(docCount+","+currNum+":"+codeList);
           rerun(currNum);
         }
-        $(io).replaceWith('<div class="out" id="'+currId+'"><p id="p'+currId+'">In [ '+currNum+' ]:</p><div id="d'+currId+'">'+io.value.replace("\n", "<br>")+'</div></div>');
+        $(io).replaceWith('<div class="out" id="'+currId+'">'+io.value.replace("\n", "<br>")+'</div>');
       }
       else{
         var content = io.value;
         console.log(converter.makeHtml(content));
-        var d = $(io).replaceWith("<div id='"+currId+"' class='out'><p id='p"+currId+"'>In [ "+currNum+" ]:</p><p id='temp'></p><p id='temp1'></p></div>");
+        var d = $(io).replaceWith("<div id='"+currId+"' class='out'><p id='temp'></p><p id='temp1'></p></div>");
         $('#temp').replaceWith(converter.makeHtml(content));
         $('#temp1').replaceWith('<textarea id="'+currId+'md" style="display:none;">'+content+'</textarea>');
         codeList.push("");
@@ -155,7 +155,7 @@ function finish(){
       io.onclick = function(){
         var isCode = $(io).hasClass("code");
         if(isCode){
-          var content = document.getElementById('d'+currId).innerHTML;
+          var content = io.innerHTML;
           console.log("EDITED: "+content);
           $(io).replaceWith('<textarea id="'+currId+'">'+content.replace("<br>", "\n")+'</textarea><br id="s'+currNum+'">');
           io = document.getElementById(currId);

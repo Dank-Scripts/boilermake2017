@@ -6,6 +6,12 @@
 }
 
 body button{
+  border: none;
+  color : #fff;
+  background-color:#0087b5;
+  width: 100px;
+  height 50px;
+
   margin-top: 5px;
   margin-left: 340px;;
   display: block;

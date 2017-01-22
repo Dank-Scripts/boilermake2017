@@ -155,6 +155,6 @@ class web_app(web.Application):
 
 if __name__ == '__main__':
     app = web_app()
-    print("Now running at http://localhost:5000/")
+    print("Now running at http://localhost:5000/editor")
     app.listen(5000)
     ioloop.IOLoop.instance().start()

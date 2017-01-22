@@ -39,7 +39,7 @@ function finish(){
         document.getElementById("c"+c).innerHTML += e.data;
         if(e.data=="\\" && count<3){
           count++;
-          document.getElementById("c"+c).innerHTML = document.getElementById("c"+c).innerHTML.replace("\\\\\\", "");
+          document.getElementById("c"+c).innerHTML = document.getElementById("c"+c).innerHTML.replace("\\\\\\", "").replace("\n", "<br>");
           console.log("countup");
         }
         else if(e.data=="\n" && count==3){
@@ -136,9 +136,15 @@ function finish(){
       }
       else{
         var content = io.value;
-        console.log(converter.makeHtml(content));
+        //console.log(converter.makeHtml(content));
+        var fluff = "";
+        var madeHtml = converter.makeHtml(content);
+        if( (madeHtml.split(">").length - 1) <= 2){
+          if(madeHtml.indexOf("<br>")==-1 && madeHtml.indexOf("<p>&nbsp;</p>"))
+            fluff = "<p>&nbsp;</p>";
+        }
         var d = $(io).replaceWith("<div id='"+currId+"' class='out'><p id='temp'></p><p id='temp1'></p></div>");
-        $('#temp').replaceWith(converter.makeHtml(content));
+        $('#temp').replaceWith(madeHtml);
         $('#temp1').replaceWith('<textarea id="'+currId+'md" style="display:none;">'+content+'</textarea>');
         codeList.push("");
         //d.append(h);

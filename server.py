@@ -82,6 +82,10 @@ class EditorHandler(web.RequestHandler):
 
         self.render("editor.html", n=docCount, data=d[1:-1].replace('\n',''))
 
+class HomeHandler(web.RequestHandler):
+    def get(self):
+        self.render("index.html")
+
 class SocketHandler(websocket.WebSocketHandler):
     def check_dorigin(self, origin):
         return True
@@ -146,6 +150,7 @@ def writer(conn, fd, stop):
 class web_app(web.Application):
     def __init__(self):
         handlers = [
+            (r'/', HomeHandler),
             (r'/editor', EditorHandler),
             (r'/ws', SocketHandler),
             (r'/resolve', ResolveHandler),

@@ -1,0 +1,39 @@
+<script type="text/javascript" src="https://cdn.rawgit.com/showdownjs/showdown/1.6.0/dist/showdown.min.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MixPy - Interactive python for Mixmax</title>
+</head>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script type="text/javascript">
+	function generateSite() {
+		showdown.setFlavor('github');
+		var converter = new showdown.Converter()
+		
+		content = "\
+		## Interactive python for Mixmax\n\
+		\
+		+ Useful for students and professors to efficiently share ideas and knowledge\n\
+		+ Easy to use and integrates with something you already use, email!\n\
+		\n\
+		Try out our [editor](/editor)!\n\n\
+		## Tutorial:\n\
+		+ Start typing in the input area to begin. Use (shift+enter) to submit a line of input.\n\
+		\t+ Use familiar markdown syntax (github style) to add some flavor to your text!\n\
+		+ Press `\\` to enter `code` mode.\n\
+		\t+ Pressing `\\` will only trigger `code` mode if no other key is pressed or if spacebar is pressed within 1s.\n\
+		\t+ `Code` mode submits your code to a python REPL and prints out your output (and/or errors).\n\n\
+		##### [Made at boilermake 2017](https://github.com/Dank-scripts/boilermake2017)"
+
+		h = converter.makeHtml(content);
+		console.log(h);
+
+		$('#content').replaceWith(h);
+	}
+	$(document).ready(generateSite);
+</script>
+<body>
+	<h1><span style="color:#0b475b">M<span style="color:#cccccc">i</span><span style="color:#0087b5">x</span>Py</span></h1>
+	<div id='content'></div>
+</body>
+</html>

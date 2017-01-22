@@ -62,7 +62,7 @@ class ResolveHandler(BaseHandler):
         #css = open(os.path.join(os.path.dirname(__file__), "static/css/editor.css")).read()
         #raw = "<style>"+css+"</style>"+raw
         print(raw)
-        self.write({'body': raw})
+        self.write({'body': raw, 'raw':'true'})
         #body to html
         #convert raw... python to html formatted pretty.
 

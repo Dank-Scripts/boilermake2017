@@ -40,6 +40,7 @@
     }
 
     $("#i"+docCount).keypress(handler);
+    $("#i"+docCount).keyup(exiter);
     
     $('.out').each(function (n) {
       var io = this;
@@ -62,6 +63,7 @@
         }
         io = document.getElementById(currId);
         $(io).keypress(handler);
+        $(io).keyup(exiter);
       }
     });
 

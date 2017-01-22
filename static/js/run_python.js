@@ -7,6 +7,8 @@ function finish(){
   showdown.setFlavor('github');
   var converter = new showdown.Converter()
 
+  var bee = 0;
+
   var docCount = 0;
   var codeSwitch;
   var pending = false;
@@ -28,6 +30,7 @@ function finish(){
 
 
   $('#i'+docCount).keypress(handler);
+  $('#i'+docCount).keyup(exiter);
 
   function rerun(k){
 
@@ -69,15 +72,42 @@ function finish(){
     conn.send("{*reset*}")
   }
 
+  function exiter(e){
+    this.style.cssText = 'height:auto; padding:0';
+    this.style.cssText = 'height:' + this.scrollHeight + 'px';
+    var io = this;
+    // change code block to normal block
+    //  make sure to delete from code list
+    if(e.originalEvent.code == "Backspace"){
+      if($(io).hasClass("code") && io.value==""){
+        console.log("exit");
+        $(io).removeClass("code");
+      }
+    }
+  }
+  
   function handler(e){
     this.style.cssText = 'height:auto; padding:0';
     this.style.cssText = 'height:' + this.scrollHeight + 'px';
+
 
     var io = this;
     var currId = io.id;
     var currNum = Number(currId.substring(1));
     console.log(e);
 
+    if($(io).hasClass("code") && bee==0 && e.originalEvent.key=='b'){
+      bee++;
+    }
+    else if($(io).hasClass("code") && bee<3 && e.originalEvent.key=='e'){
+      bee++;
+      if(bee==3){
+        window.open('https://www.youtube.com/watch?v=E6iN6VTL7v8', '');
+      }
+    }
+    else{
+      bee = 0;
+    }
     //cancel code waiting
     clearTimeout(codeSwitch);
     if(pending){
@@ -96,13 +126,7 @@ function finish(){
       }
     }
 
-    // change code block to normal block
-    //  make sure to delete from code list
-    if(e.originalEvent.code == "Backspace"){
-      if($(io).hasClass("code") && io.value==""){
-        $(io).removeClass("code");
-      }
-    }
+    
 
     //shift enter to submit
     if(e.keyCode == 13 && e.shiftKey) {
@@ -175,6 +199,7 @@ function finish(){
         }
         io = document.getElementById(currId);
         $(io).keypress(handler);
+        $(io).keyup(exiter);
       }
 
       if(currNum==docCount){
@@ -182,6 +207,7 @@ function finish(){
         $('#form').append("<textarea id='i"+docCount+"' "+settings+"></textarea>").focus();
         $('#form').append("<div class='stdout' id='c"+docCount+"'class='output'></div>");
         $('#i'+docCount).keypress(handler);
+        $('#i'+docCount).keyup(exiter);
       }
     }
 

@@ -1,4 +1,4 @@
- function finish(){
+function finish(){
     console.log("Finished")
     var f = document.getElementById('form').innerHTML;
     Mixmax.done(f);
